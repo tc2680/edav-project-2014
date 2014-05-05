@@ -1,0 +1,213 @@
+<html>
+    <head>
+    <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+    
+    <script type="text/javascript">
+        /****************************************************
+         *  load google chart package
+         *****************************************************/
+        google.load('visualization', '1', { 'packages': ['motionchart'] });
+        google.setOnLoadCallback(drawVisualization);
+        
+        /****************************************************
+         *  define dataset from google docs
+         *****************************************************/
+        function drawVisualization() {
+            var query = new google.visualization.Query(
+                'https://docs.google.com/spreadsheets/d/1q1z5HQ2bPssTR24viT5Yt-GD3Yxp6ZLIW0Z9AIGlIyM/edit#gid=1755359768');
+                
+            // Sample query
+            //query.setQuery("SELECT A, B, C, D, E WHERE (A='something' OR B='something') ORDER BY A, B ");
+            query.setQuery("SELECT A, B, C, D, E ORDER BY A, B");
+            
+            // Send the query with a callback function
+            query.send(handleQueryResponse);
+        }
+
+        function handleQueryResponse(response) {
+            if (response.isError()) {
+                alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+                return;
+            }
+
+            /****************************************************
+             *  add columns from the spreadsheet
+             *****************************************************/
+            var numRow = response.getDataTable().getNumberOfRows();
+            var remoteDatatable = response.getDataTable();
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Portfolio');
+            data.addColumn('date', 'Study Year');
+            data.addColumn('number', 'Return on Investment $');
+            data.addColumn('number', 'Return on Investment %');
+            data.addColumn('string', 'Investment Model');
+            //alert(numRow) // debug
+            //alert(remoteDatatable.getValue(0,0)) // debug
+            //alert(response.getDataTable().getValue(0,0)) // debug
+    
+            /****************************************************
+             *  loop through all records in the spreadsheet
+             *  and add them to the data array
+             *****************************************************/
+            for (var i = 0; i < numRow; i++) {
+                var portfolio = remoteDatatable.getValue(i, 0) // 1st column
+                var study_year = remoteDatatable.getValue(i, 1) // 2nd column
+                var roi_dollar = remoteDatatable.getValue(i, 2) // 3rd column
+                var roi_percent = remoteDatatable.getValue(i, 3) // 4th column
+                var investment_model = remoteDatatable.getValue(i, 4) // 5th column
+                data.addRows([
+                    [portfolio, study_year, roi_dollar, roi_percent, investment_model]
+                ]);
+            }
+
+            /****************************************************
+             *  initialize chart component
+             ****************************************************/
+            var chart = new google.visualization.MotionChart(document.getElementById('chart_div_portfolio_roi'));
+            var options = {};
+            //options['state'] = '{"iconKeySettings":[{"key":{"dim0":"PostgreSQL"}},{"key":{"dim0":"MariaDB"}}],"yAxisOption":"3","xZoomedDataMin":1354320000000,"orderedByX":false,"xAxisOption":"_TIME","iconType":"BUBBLE","dimensions":{"iconDimensions":["dim0"]},"colorOption":"_UNIQUE_COLOR","uniColorForNonSelected":false,"yLambda":1,"xZoomedDataMax":1396310400000,"xZoomedIn":false,"showTrails":false,"duration":{"multiplier":1,"timeUnit":"D"},"yZoomedDataMin":-13.63,"time":"2012-12-01","yZoomedIn":false,"orderedByY":false,"xLambda":1,"playDuration":15000,"nonSelectedAlpha":0.4,"yZoomedDataMax":38.4,"sizeOption":"3"} ';
+            options['state'] = '{"xZoomedDataMin":694137600000,"xZoomedDataMax":1388448000000,"colorOption":"4","yAxisOption":"3","playDuration":15000,"time":"2013-12-31","orderedByX":false,"xLambda":1,"orderedByY":false,"iconType":"LINE","xZoomedIn":false,"yZoomedDataMin":-40,"duration":{"multiplier":1,"timeUnit":"D"},"uniColorForNonSelected":false,"yZoomedIn":false,"sizeOption":"_UNISIZE","xAxisOption":"_TIME","yLambda":1,"dimensions":{"iconDimensions":["dim0"]},"yZoomedDataMax":80,"showTrails":false,"iconKeySettings":[],"nonSelectedAlpha":0.4} ';
+            
+            options['width'] = '100%';
+            options['height'] = '100%';
+            options['showAdvancedPanel'] = false
+            chart.draw(data, options);
+            //chart.draw(data, { width: 800, height: 400 });
+        }
+    </script>
+    
+    <!--*************************************************
+    *   hide/show for next section of presentation
+    *************************************************-->
+    <script type="text/javascript">
+        function changeShowHide(obj) {
+            var fold_image = new Array();
+            if (document.getElementById(obj).style.display == 'none') {
+                document.getElementById(obj).style.display = 'block';
+                if (document.getElementById('nfolding')) {
+                    document.getElementById('nfolding').src = fold_image[0];
+                }
+            } else {
+                document.getElementById(obj).style.display = 'none'; å
+                if (document.getElementById('nfolding')) {
+                    document.getElementById('nfolding').src = fold_image[1];
+                }
+            }
+        } 
+    </script>
+    </head>
+   
+    <body>
+    
+    <table align="center" style="width: 900px;" border="0">
+        <tr><td align="center"><h1>EDAV Project 2014</h1></td></tr>
+    </table>
+    
+    <!--*******************************************************
+    *   First Idea
+    *******************************************************-->
+    <table align="center" style="width: 900px;" border="0">
+        <tr><td align="left"><strong><u>Proposal One</u><br/>
+                To discover hidden relations among College Major, Employment Rate, and Housing Trend</strong>
+                &nbsp;&nbsp;&nbsp;<a href="javascript:changeShowHide('pageIdea1Result');"><i>result</i>
+            </td></tr></table>
+    
+    <br/>
+    <div id="pageIdea1Result" style="display:none;">
+    <table align="center" style="width: 900px;" border="0">
+        <tr><td width='40%'></td>
+            <td align="center">
+            <font color="red">Searched Multiple Data Sources:</font><br/>
+                <li>U.S. Census Bureau</li>
+                <li>U.S. Bureau of Labor Statistics</li>
+                <li>Federal Housing Finance Agency</li>
+                <li>Multiple College Admin Websites</li>
+                ...<br/><br/>
+            <font color="red">Challenge:</font><br/>
+            <li>No single solution to get applicable dataset without doing HARD data cleanup, manipulation, 
+            transformation, and calculation repeatedly</li>
+            <li>Little or no time for data exploration and visualization</li>
+            &nbsp;&nbsp;&nbsp;<a href="javascript:changeShowHide('pageIdea1Frustrated');"><i>frustrated</i>
+            </td></tr></table>
+    </div>
+    
+    <br/>
+    <div id="pageIdea1Frustrated" style="display:none;">
+    <table align="center" style="width: 900px;" border="0">
+        <tr><td align="center">
+            <h3>Spent Five Days on The Beach <br/> Didn't Get Sunburned</h3>
+            <img src="baby_work_hard.png" width="300"></img>
+            &nbsp;&nbsp;&nbsp;<a href="javascript:changeShowHide('pageIdea2');"><i>next</i>
+            <hr color="lightgray" size="1"/><br /></td></tr>
+            </td></tr></table>
+    </div>
+    
+    <!--*******************************************************
+    *   Second Idea
+    *******************************************************-->
+    <div id='pageIdea2' style='display: none'>
+    <table align="center" style="width: 900px;" border="0">
+        <tr><td align="left"><strong><u>Proposal Two</u><br/>
+                To explore a (semi) secret investment strategy in fund management industry</strong>
+                &nbsp;&nbsp;&nbsp;<a href="javascript:changeShowHide('pageIdea2Secret');"><i>next</i>
+            </td></tr></table>
+    </div>
+    
+    <div id="pageIdea2Secret" style="display:none;">
+    <table align="center" style="width: 900px;" border="0">
+        <tr><td width='50%'><strong>Compound interest is the most powerful force in the universe</strong> <br/>- Albert Einstein<br/>
+            &nbsp;&nbsp;&nbsp;<a href="javascript:changeShowHide('pageIdea2DataExploration');"><i>next</i></td>
+            <td align="left" bgcolor="black">
+            <font color="yellow"><br/>&nbsp;&nbsp;The Secret:<br/>
+                <ol>
+                <li>Funds ranked top quartile by recent yearly return of same type</li>
+                <li>Funds ranked top quartile by last two, three, and five years return of same type</li>
+                <li>Top one-third of funds from last six months return of same type</li>
+                <li>Top one-third of funds from last three months return of same type</li>
+                </ol>
+            </font>
+            </td></tr>
+        <tr><td colspan=2><hr color="lightgray" size="1"/></td></tr>
+    </table>
+    </div>
+    
+    <!--*******************************************************
+    *   Second Idea: data exploration
+    *******************************************************-->
+    <br/>
+    <div id="pageIdea2DataExploration" style="display:none;">
+    <table align="center" style="width: 900px;" border="0">
+        <tr><td width='50%'><img src=''></img></td>
+            <td align="left">
+            <font color="red">Financial Data Explored:</font><br/>
+                <li>Yahoo Finance - no straight solution to download needed performance data</li>
+                <li>TD Ameritrade - no data exporting function for fund ranking information</li>
+                <li>Fidelity Investment - does not provides full-scale ranking information</li>
+                <li>Morningstar - similar to Yahoo Finance</li>
+                <li>Market Watch - can download master fund list here</li>
+            <br/>
+            <font color="red">Data Munging:</font><br/>
+                <li>Becutiful Soup 4.3.2</li>
+                <li>Python 3</li>
+                <li>Excel 2010</li>
+                <li>SQL 2012</li>
+            </td></tr>
+        <tr><td width='50%'></td><td><br/><a href="javascript:changeShowHide('chart_div_portfolio_roi');"><i>Data Visualization I</i></td></tr>
+    </table>
+    </div>
+    
+    <!--*******************************************************
+    *   Second Idea: data visualization
+    *******************************************************-->
+    <table border="0" align="center" style="width: 900px; height: 550px"><tr><td>
+        <div id="chart_div_portfolio_roi" style="display:none;"></div>
+    </td></tr></table>
+    
+    <table border="0" align="center" style="width: 900px; height: 250px"><tr><td>
+        [To Do] More Charts to Compare Top 1%, 5%, 10%, and 20% Recommended Portfolios
+    </td></tr></table>
+    
+    
+    
+  </body>
+</html>
